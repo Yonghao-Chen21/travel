@@ -1,0 +1,20 @@
+		Perdiem perdiem = appService.getPerdiem("San Diego", "CA", 2022, 5);
+		System.out.println(perdiem);
+		Airfare airfare = appService.getAirfare("San Diego", "CA", "Seattle", "WA");
+		System.out.println(airfare);
+		
+		LocalDate startDate = LocalDate.parse("2022-04-28"); 
+		LocalDate endDate = LocalDate.parse("2022-05-04");
+		
+		long numOfDaysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+		List<LocalDate> dates = IntStream.iterate(0, i -> i + 1).limit(numOfDaysBetween)
+				.mapToObj(i -> startDate.plusDays(i)).collect(Collectors.toList());
+		Map<Integer, Integer> map = new HashMap<>();
+		for (LocalDate date : dates) {
+			Integer month = date.getMonthValue();
+			map.putIfAbsent(month, 0);
+			map.put(month, map.get(month)+1);
+		}
+		map.entrySet().forEach(e->System.out.println(e.getKey() + " : " + e.getValue()));
+
+	}

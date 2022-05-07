@@ -1,10 +1,11 @@
 package com.navitas.travel.domain;
 
-import java.time.LocalDate;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,20 +17,21 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Airfare {
+public class Traveler {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long Id;
-	private String originAirport;
-	private String destinationAirport;
+	private String name;
+	private String email;
 	private String originCity;
 	private String originState;
-	private String destinationCity;
-	private String destinationState;
-	private String airline;
-	private double ycaFare;
-	private double caFare;
-	private LocalDate effectiveDate;
-	private LocalDate expirationDate;
+	private String originAirport;
+	private String destinationAirport;
+	@ManyToOne
+	@JoinColumn(name = "ticket_id")
+	private Ticket ticket;
+	private double airfareCost;
+	private double mealCost;
+	private double lodgingCost;
 
 }

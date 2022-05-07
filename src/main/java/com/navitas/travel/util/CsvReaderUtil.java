@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import com.navitas.travel.repo.AirfareRepo;
 
 @Component
 public class CsvReaderUtil {
-	private SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 	private AirfareRepo airfareRepo;
 	
 	@Autowired
@@ -28,6 +26,7 @@ public class CsvReaderUtil {
 
 	public void loadAirFares() {
 		List<Airfare> list = new ArrayList<>();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 		try {
 			List<String> dlist = Files
 					.readAllLines(Paths.get(CsvReaderUtil.class.getResource("/awards_2022.csv").toURI()));
@@ -42,8 +41,8 @@ public class CsvReaderUtil {
 				String airline = data[10];
 				double ycaFare = Double.parseDouble(data[13]);
 				double caFare = Double.parseDouble(data[14]);
-				Date effectiveDate = formatter.parse(data[21]);
-				Date expirationDate = formatter.parse(data[22]);
+				LocalDate effectiveDate = LocalDate.parse(data[21],formatter);
+				LocalDate expirationDate = LocalDate.parse(data[22],formatter);
 				Airfare airfare = Airfare.builder().airline(airline).caFare(caFare)
 						.destinationAirport(destinationAirport).destinationCity(destinationCity)
 						.destinationState(destinationState).effectiveDate(effectiveDate).expirationDate(expirationDate)
@@ -52,8 +51,6 @@ public class CsvReaderUtil {
 				list.add(airfare);
 			}
 		} catch (IOException | URISyntaxException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		airfareRepo.saveAll(list);
