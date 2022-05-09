@@ -12,10 +12,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Ticket {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +28,8 @@ public class Ticket {
 	private LocalDate startDate;
 	private LocalDate endDate;
 	@OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private List<Traveler> travlers = new ArrayList<>();
+	private List<Traveler> travelers = new ArrayList<>();
 	private String destinationCity;
 	private String destinationState;
-	private String statues;
+	private String status;
 }

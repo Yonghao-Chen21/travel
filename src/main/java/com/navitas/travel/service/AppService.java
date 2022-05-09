@@ -7,9 +7,12 @@ import com.navitas.travel.domain.Perdiem;
 import com.navitas.travel.domain.Site;
 import com.navitas.travel.domain.Ticket;
 import com.navitas.travel.domain.Traveler;
+import com.navitas.travel.dto.TicketDto;
 import com.navitas.travel.dto.PerdiemDto;
 
 public interface AppService {	
+	public Ticket respondToApi(TicketDto input);
+	
 	public Ticket getSolution(Ticket ticket, List<Site> sites);
 	
 	public Perdiem getPerdiem(String destinationCity, String destinationState, int year, int month);

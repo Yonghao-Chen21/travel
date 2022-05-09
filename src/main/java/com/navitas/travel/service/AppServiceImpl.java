@@ -21,6 +21,8 @@ import com.navitas.travel.domain.Perdiem;
 import com.navitas.travel.domain.Site;
 import com.navitas.travel.domain.Ticket;
 import com.navitas.travel.domain.Traveler;
+import com.navitas.travel.dto.TicketDto;
+import com.navitas.travel.dto.TravelerDto;
 import com.navitas.travel.dto.PerdiemDto;
 import com.navitas.travel.repo.AirfareRepo;
 import com.navitas.travel.repo.TicketRepo;
@@ -42,12 +44,42 @@ public class AppServiceImpl implements AppService {
 	}
 
 	@Override
+	public Ticket respondToApi(TicketDto input) {
+		Ticket ticket = new Ticket();
+		String name = input.getName();
+		LocalDate startDate = input.getStartDate();
+		LocalDate endDate = input.getEndDate();
+		List<TravelerDto> travelerDtos = input.getTravlers();
+		String status = input.getStatus();
+		List<Traveler> travelers = new ArrayList<>();
+		List<Site> sites = input.getSites();
+		for(TravelerDto obj : travelerDtos) {
+			Traveler traveler = new Traveler();
+			String tname = obj.getName();
+			String email = obj.getEmail();
+			String originCity = obj.getOriginCity();
+			String originState = obj.getOriginState();
+			traveler.setName(tname);
+			traveler.setEmail(email);
+			traveler.setOriginCity(originCity);
+			traveler.setOriginState(originState);
+			travelers.add(traveler);			
+		}
+		ticket.setName(name);
+		ticket.setStartDate(startDate);
+		ticket.setEndDate(endDate);
+		ticket.setTravelers(travelers);
+		ticket.setStatus(status);		
+		return getSolution(ticket,sites);
+	}
+	
+	@Override
 	public Ticket getSolution(Ticket ticket, List<Site> sites) {
 
 		LocalDate startDate = ticket.getStartDate();
 		LocalDate endDate = ticket.getEndDate();
 		int year = endDate.getYear();
-		List<Traveler> travelers = ticket.getTravlers();
+		List<Traveler> travelers = ticket.getTravelers();
 		long numOfDaysBetween = ChronoUnit.DAYS.between(startDate, endDate);
 		List<LocalDate> dates = IntStream.iterate(0, i -> i + 1).limit(numOfDaysBetween)
 				.mapToObj(i -> startDate.plusDays(i)).collect(Collectors.toList());
@@ -89,7 +121,7 @@ public class AppServiceImpl implements AppService {
 			traveler.setMealCost(mealCost);
 			traveler.setLodgingCost(lodgingCost);
 		}
-		ticket.setStatues("submitted");
+		ticket.setStatus("submitted");
 		ticket = ticketRepo.save(ticket);
 		return ticket;
 	}

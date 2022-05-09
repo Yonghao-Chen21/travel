@@ -18,3 +18,30 @@
 		map.entrySet().forEach(e->System.out.println(e.getKey() + " : " + e.getValue()));
 
 	}
+	
+	
+		LocalDate startDate = LocalDate.parse("2022-04-28");
+		LocalDate endDate = LocalDate.parse("2022-05-04");
+
+		List<Traveler> travelers = new ArrayList<>();
+		Traveler traveler1 = Traveler.builder().name("John").email("John@gmail.com").originCity("SAN DIEGO")
+				.originState("CA").build();
+		travelers.add(traveler1);
+		Traveler traveler2 = Traveler.builder().name("May").email("May@gmail.com").originCity("Washington")
+				.originState("DC").build();
+		travelers.add(traveler2);
+
+		List<Site> sites = new ArrayList<>();
+		sites.add(new Site("SEATTLE", "WA"));
+		// sites.add(new Site("Denver","CO"));
+		sites.add(new Site("SAN FRANCISCO", "CA"));
+
+		Ticket ticket = new Ticket();
+		ticket.setStartDate(startDate);
+		ticket.setEndDate(endDate);
+		ticket.setName("test conference");
+		traveler1.setTicket(ticket);
+		traveler2.setTicket(ticket);
+		ticket.setTravelers(travelers);
+		appService.getSolution(ticket, sites);
+		System.out.println(ticket.getDestinationCity());
