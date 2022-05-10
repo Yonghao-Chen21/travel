@@ -23,6 +23,8 @@ import com.navitas.travel.domain.Ticket;
 import com.navitas.travel.domain.Traveler;
 import com.navitas.travel.dto.TicketDto;
 import com.navitas.travel.dto.TravelerDto;
+import com.navitas.travel.dto.TravelerOutputDto;
+import com.navitas.travel.dto.OutputDto;
 import com.navitas.travel.dto.PerdiemDto;
 import com.navitas.travel.repo.AirfareRepo;
 import com.navitas.travel.repo.TicketRepo;
@@ -44,7 +46,7 @@ public class AppServiceImpl implements AppService {
 	}
 
 	@Override
-	public Ticket respondToApi(TicketDto input) {
+	public OutputDto respondToApi(TicketDto input) {
 		Ticket ticket = new Ticket();
 		String name = input.getName();
 		LocalDate startDate = input.getStartDate();
@@ -53,7 +55,11 @@ public class AppServiceImpl implements AppService {
 		String status = input.getStatus();
 		List<Traveler> travelers = new ArrayList<>();
 		List<Site> sites = input.getSites();
-		for(TravelerDto obj : travelerDtos) {
+		ticket.setName(name);
+		ticket.setStartDate(startDate);
+		ticket.setEndDate(endDate);
+		ticket.setStatus(status);
+		for (TravelerDto obj : travelerDtos) {
 			Traveler traveler = new Traveler();
 			String tname = obj.getName();
 			String email = obj.getEmail();
@@ -63,19 +69,16 @@ public class AppServiceImpl implements AppService {
 			traveler.setEmail(email);
 			traveler.setOriginCity(originCity);
 			traveler.setOriginState(originState);
-			travelers.add(traveler);			
+			traveler.setTicket(ticket);
+			travelers.add(traveler);
 		}
-		ticket.setName(name);
-		ticket.setStartDate(startDate);
-		ticket.setEndDate(endDate);
 		ticket.setTravelers(travelers);
-		ticket.setStatus(status);		
-		return getSolution(ticket,sites);
+		ticket = getSolution(ticket, sites);
+		return mapperToOutput(ticket);
 	}
-	
+
 	@Override
 	public Ticket getSolution(Ticket ticket, List<Site> sites) {
-
 		LocalDate startDate = ticket.getStartDate();
 		LocalDate endDate = ticket.getEndDate();
 		int year = endDate.getYear();
@@ -108,7 +111,8 @@ public class AppServiceImpl implements AppService {
 			double airfareCost = getOneTravelerAirfareForOneSite(traveler, result);
 			double mealCost = 0;
 			double lodgingCost = 0;
-			Airfare airfare = getAirfare(traveler.getOriginCity(),traveler.getOriginState(),result.getDestinationCity(),result.getDestinationState());
+			Airfare airfare = getAirfare(traveler.getOriginCity(), traveler.getOriginState(),
+					result.getDestinationCity(), result.getDestinationState());
 			traveler.setOriginAirport(airfare.getOriginAirport());
 			traveler.setDestinationAirport(airfare.getDestinationAirport());
 			for (Integer month : map.keySet()) {
@@ -124,6 +128,39 @@ public class AppServiceImpl implements AppService {
 		ticket.setStatus("submitted");
 		ticket = ticketRepo.save(ticket);
 		return ticket;
+	}
+
+	@Override
+	public OutputDto mapperToOutput(Ticket ticket) {
+		Long tid = ticket.getId();
+		String tname = ticket.getName();
+		LocalDate startDate = ticket.getStartDate();
+		LocalDate endDate = ticket.getEndDate();
+		String destinationCity = ticket.getDestinationCity();
+		String destinationState = ticket.getDestinationState();
+		String status = ticket.getStatus();
+		List<Traveler> travelers = ticket.getTravelers();
+		List<TravelerOutputDto> tDtoList = new ArrayList<>();
+		for (Traveler t : travelers) {
+			Long id = t.getId();
+			String name = t.getName();
+			String email = t.getEmail();
+			String originCity = t.getOriginCity();
+			String originState = t.getOriginState();
+			String originAirport = t.getOriginState();
+			String destinationAirport = t.getDestinationAirport();
+			double airfareCost = t.getAirfareCost();
+			double mealCost = t.getMealCost();
+			double lodgingCost = t.getLodgingCost();
+			TravelerOutputDto tDto = TravelerOutputDto.builder().Id(id).name(name).email(email).originCity(originCity)
+					.originState(originState).originAirport(originAirport).destinationAirport(destinationAirport)
+					.ticketId(tid).airfareCost(airfareCost).mealCost(mealCost).lodgingCost(lodgingCost).build();
+			tDtoList.add(tDto);
+		}
+		OutputDto outputDto = OutputDto.builder().id(tid).name(tname).startDate(startDate).endDate(endDate)
+				.travelers(tDtoList).destinationCity(destinationCity).destinationState(destinationState).status(status)
+				.build();
+		return outputDto;
 	}
 
 	@Override
@@ -157,14 +194,14 @@ public class AppServiceImpl implements AppService {
 	public Airfare getAirfare(String originCity, String originState, String destinationCity, String destinationState) {
 		List<Airfare> airfares = airfareRepo.getAirfare(originCity.toUpperCase(), originState,
 				destinationCity.toUpperCase(), destinationState);
-		if(airfares != null) {
+		if (airfares != null) {
 			Airfare result = airfares.get(0);
-			for(int i = 1; i < airfares.size();i++) {
+			for (int i = 1; i < airfares.size(); i++) {
 				if (airfares.get(i).getYcaFare() < result.getYcaFare()) {
 					result = airfares.get(i);
 				}
 			}
-			return result;			
+			return result;
 		}
 		return null;
 	}

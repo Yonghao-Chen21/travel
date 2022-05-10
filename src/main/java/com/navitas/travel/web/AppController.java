@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.navitas.travel.domain.Ticket;
+import com.navitas.travel.dto.OutputDto;
 import com.navitas.travel.dto.TicketDto;
 import com.navitas.travel.service.AppService;
 
@@ -22,7 +22,7 @@ public class AppController {
 	}
 	
 	@PostMapping
-	public Ticket getResponse(@RequestBody TicketDto t) {
+	public OutputDto getResponse(@RequestBody TicketDto t) {
 		return service.respondToApi(t);
 	}
 
