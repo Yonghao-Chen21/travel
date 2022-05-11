@@ -147,7 +147,7 @@ public class AppServiceImpl implements AppService {
 			String email = t.getEmail();
 			String originCity = t.getOriginCity();
 			String originState = t.getOriginState();
-			String originAirport = t.getOriginState();
+			String originAirport = t.getOriginAirport();
 			String destinationAirport = t.getDestinationAirport();
 			double airfareCost = t.getAirfareCost();
 			double mealCost = t.getMealCost();
